@@ -4,6 +4,7 @@ import { NbMenuService, NbSidebarService } from '@nebular/theme';
 import { NbAuthJWTToken, NbAuthService } from '@nebular/auth';
 import { UserService } from '../../../@core/data/users.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'ngx-header',
@@ -17,25 +18,36 @@ export class HeaderComponent implements OnInit {
 
   user: any;
 
-  userMenu = [{ title: 'Profile' }, { title: 'Log out' }];
+  userMenu = [];
 
   constructor(
     private sidebarService: NbSidebarService,
     private menuService: NbMenuService,
     private userService: UserService,
     private analyticsService: AnalyticsService,
-    private authService: NbAuthService
+    private authService: NbAuthService,
+    private router: Router
   ) {}
 
   ngOnInit() {
     this.authService.onTokenChange()
       .subscribe((token: NbAuthJWTToken) => {
 
-        if (token.getValue()) {
-          this.user = token.getPayload(); // here we receive a payload from the token and assigne it to our `user` variable 
+        if(token != null) {
+          if (token.getValue()) {
+              this.user = token.getPayload();
+          }
         }
 
       });
+
+      this.userMenu = [
+        { title: 'Profile' },
+        {
+          title: 'Log out',
+          url  : this.router.createUrlTree(['#/auth','logout'])
+        }
+      ];
   }
 
   toggleSidebar(): boolean {

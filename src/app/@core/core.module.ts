@@ -1,6 +1,6 @@
 import { ModuleWithProviders, NgModule, Optional, SkipSelf } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NbAuthModule, NbDummyAuthProvider } from '@nebular/auth';
+import { NbAuthModule, NbEmailPassAuthProvider } from '@nebular/auth';
 
 import { throwIfAlreadyLoaded } from './module-import-guard';
 import { DataModule } from './data/data.module';
@@ -11,12 +11,24 @@ const NB_CORE_PROVIDERS = [
   ...NbAuthModule.forRoot({
     providers: {
       email: {
-        service: NbDummyAuthProvider,
+        service: NbEmailPassAuthProvider,
         config: {
-          delay: 3000,
+          baseEndpoint: 'http://127.0.0.1:4400',
           login: {
-            rememberMe: true,
+            endpoint: '/api/auth/login',
           },
+          register: {
+            endpoint: '/api/auth/register',
+          },
+          logout: {
+            endpoint: '/api/auth/logout',
+          },
+          requestPass: {
+            endpoint: '/api/auth/request-pass',
+          },
+          resetPass: {
+            endpoint: '/api/auth/reset-pass',
+          }
         },
       },
     },
