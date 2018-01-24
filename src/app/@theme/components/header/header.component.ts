@@ -44,8 +44,8 @@ export class HeaderComponent implements OnInit {
       this.userMenu = [
         { title: 'Profile' },
         {
-          title: 'Log out',
-          url  : this.router.createUrlTree(['#/auth','logout'])
+          title : 'Log out',
+          link  : '/auth/logout'
         }
       ];
   }
