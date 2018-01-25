@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { UserService } from './users.service';
 import { StateService } from './state.service';
 import { VendedorService } from "./vendedor.service";
+import { SmartTableService } from './smart-table.service';
 
 const SERVICES = [
   UserService,
   StateService,
-  VendedorService
+  VendedorService,
+  SmartTableService,
 ];
 
 @NgModule({

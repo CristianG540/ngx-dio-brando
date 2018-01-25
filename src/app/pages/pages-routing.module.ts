@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 
 import { PagesComponent } from './pages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { VendedoresComponent } from "./vendedores/vendedores.component";
 
 const routes: Routes = [{
   path: '',
@@ -10,7 +11,7 @@ const routes: Routes = [{
   children: [
     {
       path: 'dashboard',
-      component: DashboardComponent,
+      component: VendedoresComponent,
     },
     {
       path: '',

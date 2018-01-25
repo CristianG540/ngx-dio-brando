@@ -5,34 +5,29 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 import 'rxjs/add/operator/toPromise';
 
-import { DbActions } from "./dbBase/dbBase";
-
 //Libs terceros
 import * as _ from 'lodash';
-import * as PouchDB from 'pouchdb';
+import PouchDB from 'pouchdb';
 //Services
 import { UtilsService } from '../utils/utils.service';
 
 @Injectable()
-export class VendedorService extends DbActions {
+export class VendedorService {
 
-  private _urlCouchDB: string = "https://vm257.tmdcloud.com:6984";
+  private _remoteBD: PouchDB.Database; // Nombre de la bd a la que voy a consultar
+  private _urlUsersCouchDB: string = "https://vm257.tmdcloud.com:6984"; // Url de la BD en couchDB con los usuarios de la app
+  // Credenciales
   private _userDB: string = "admin";
   private _passDB: string = "Webmaster2017#@";
+
 
   constructor(
     protected utils: UtilsService,
     private http: HttpClient
-  ) {
-    super('vendedor', utils);
+  ) {}
 
-    if(!this._isInit){
-      //this._localDB = new PouchDB('')
-    }
-  }
-
-  public async  getAllVendedores(): Promise<any> {
-    let url: string = `${this._urlCouchDB}/_all_dbs`;
+  public async  getAllVendedores(): Promise<string[]> {
+    let url: string = `${this._urlUsersCouchDB}/_all_dbs`;
     let options = {
       headers: new HttpHeaders({
         'Accept'       : 'application/json',
@@ -41,12 +36,45 @@ export class VendedorService extends DbActions {
       })
     };
 
-    let res = await this.http.get( url, options ).pipe(
-      map((res: Response) => res)
+    let all_dbs: string[] = await this.http.get( url, options ).pipe(
+      map( (res: string[]) => res)
     ).toPromise();
-    debugger;
-    return res;
 
+    let users: string[] = _.chain(all_dbs)
+      .map((db,k,l): string => {
+        let dbSplit: string[] = db.split("$");
+        if( dbSplit[0] == "supertest" ){
+            return dbSplit[1];
+        }
+      })
+      .compact()
+      .value();
+
+    return users;
+  }
+
+  public async getOrdenesVendedor(): Promise<any> {
+    let docs = await this._remoteBD.allDocs({
+      include_docs: true
+    })
+    return docs;
+  }
+
+  public async getOrdenesVendedores(): Promise<any> {
+    let usuarios: string[] = await this.getAllVendedores();
+    for (let usuario of usuarios) {
+      this.bdName = usuario;
+      console.log("YIJAAAAAAA !!! HPTA", await this.getOrdenesVendedor());
+    }
+  }
+
+  public set bdName(v : string) {
+    this._remoteBD = new PouchDB(`${this._urlUsersCouchDB}/supertest%24${v}`, {
+      auth: {
+        username: this._userDB,
+        password: this._passDB
+      }
+    });
   }
 
 }
