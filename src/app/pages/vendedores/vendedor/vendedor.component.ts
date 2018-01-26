@@ -1,15 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { LocalDataSource } from 'ng2-smart-table';
-import { Router } from '@angular/router';
+import 'rxjs/add/operator/switchMap';
+import { Observable } from 'rxjs/Observable';
+import { Subscription } from 'rxjs/Subscription';
 
 // Services
-import { VendedorService } from '../../@core/data/vendedor/vendedor.service';
+import { VendedorService } from '../../../@core/data/vendedor/vendedor.service';
 
 @Component({
-  selector: 'ngx-vendedores',
-  templateUrl: './vendedores.component.html',
+  selector: 'ngx-vendedor',
+  templateUrl: './vendedor.component.html',
 })
-export class VendedoresComponent  {
+export class VendedorComponent implements OnInit, OnDestroy {
+
+  private _vendedor: string = '';
+  private _paramsSub: Subscription;
 
   /**
    * objeto de configuracion para ng2-smart-table
@@ -59,29 +65,24 @@ export class VendedoresComponent  {
   };
   private source: LocalDataSource = new LocalDataSource();
 
-  constructor (
+  constructor(
     private vendedoresService: VendedorService,
-    private router: Router,
-  ) {
-    this.vendedoresService.getOrdenesVendedores().then( res => {
-      console.log('PERRRRROOOOO', res);
-      this.source.load(res);
-    }).catch( err => {
-      console.error('La puta madre no funciona', err);
+    private route: ActivatedRoute,
+  ) {}
+
+  ngOnInit() {
+    this._paramsSub = this.route.params.subscribe(params => {
+      this.vendedoresService.bdName = this._vendedor = params['vendedor'];
+      this.vendedoresService.getOrdenesVendedor().then(res => {
+        console.log('ordenes vendedores', res);
+      }).catch(err => {
+        console.error('Me cago en la puta errror', err);
+      });
     });
   }
 
-  private onUserRowSelect(evt): void {
-    console.log('El buen evento', evt);
-    this.router.navigate(['pages/ordenes-vendedor', evt.data.vendedor]);
-  }
-
-  onDeleteConfirm(event): void {
-    if (window.confirm('Are you sure you want to delete?')) {
-      event.confirm.resolve();
-    } else {
-      event.confirm.reject();
-    }
+  ngOnDestroy() {
+    this._paramsSub.unsubscribe();
   }
 
 }

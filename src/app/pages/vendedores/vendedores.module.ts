@@ -10,7 +10,7 @@ import { SmartTableService } from '../../@core/data/smart-table.service';
 @NgModule({
   imports: [
     ThemeModule,
-    Ng2SmartTableModule
+    Ng2SmartTableModule,
   ],
   declarations: [
     VendedoresComponent,

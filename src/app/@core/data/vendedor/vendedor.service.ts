@@ -7,6 +7,7 @@ import 'rxjs/add/operator/toPromise';
 
 // Libs terceros
 import * as _ from 'lodash';
+import * as moment from 'moment';
 import PouchDB from 'pouchdb';
 // Services
 import { UtilsService } from '../../utils/utils.service';
@@ -22,7 +23,6 @@ export class VendedorService {
   // Credenciales
   private _userDB: string = 'admin';
   private _passDB: string = 'Webmaster2017#@';
-
 
   constructor(
     protected utils: UtilsService,
@@ -61,6 +61,27 @@ export class VendedorService {
       include_docs: true,
     });
     return docs;
+  }
+
+  public async formatOrdenesVendedor(): Promise<any> {
+    const ordenesUsuario = await this.getOrdenesVendedor(); // traigo todas las ordenes del vendedor
+    return _.map(ordenesUsuario.rows, (row: any) => {
+      let statusOrder: string = row.doc.estado;
+      const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
+      const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
+      if ( String(row.doc.estado) === 'seen' ) { statusOrder = 'Revisado'; }
+      if ( hasDocEntry ) { statusOrder = 'Pendiente'; }
+      if ( hasError ) { statusOrder = 'Error'; }
+
+      return {
+        id         : row.doc._id,
+        cliente    : row.doc.nitCliente,
+        created_at : moment(parseInt(row.doc._id, 10)).format('YYYY-MM-DD'),
+        total      : row.doc.total,
+        cantItems  : row.doc.items.length,
+        estado     : statusOrder,
+      };
+    });
   }
 
   /**
@@ -116,8 +137,6 @@ export class VendedorService {
     }
     return allVendedoresOrdersInfo;
   }
-
-
 
   public set bdName(v: string) {
     this._remoteBD = new PouchDB(`${this._urlUsersCouchDB}/supertest%24${v}`, {

@@ -1,9 +1,9 @@
-
 <nb-card>
   <nb-card-header>
-    Usuarios
+    Ordenes
   </nb-card-header>
   <nb-card-body>
+    {{ _vendedor }}
     <ng2-smart-table [settings]="settings" [source]="source" (userRowSelect)="onUserRowSelect($event)">
     </ng2-smart-table>
   </nb-card-body>
