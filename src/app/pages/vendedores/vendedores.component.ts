@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { LocalDataSource } from 'ng2-smart-table';
 
 //Services
-import { VendedorService } from "../../@core/data/vendedor.service";
+import { VendedorService } from "../../@core/data/vendedor/vendedor.service";
 import { SmartTableService } from '../../@core/data/smart-table.service';
 
 @Component({
@@ -30,28 +30,24 @@ export class VendedoresComponent  {
       confirmDelete: true,
     },
     columns: {
-      id: {
-        title: 'ID',
+      vendedor: {
+        title: 'Asesor',
+        type: 'string',
+      },
+      numOrdenes: {
+        title: 'Ordenes',
         type: 'number',
       },
-      firstName: {
-        title: 'First Name',
-        type: 'string',
+      numOrdenesErr: {
+        title: 'Errores',
+        type: 'number',
       },
-      lastName: {
-        title: 'Last Name',
-        type: 'string',
+      numOrdenesPend: {
+        title: 'Pendientes',
+        type: 'number',
       },
-      username: {
-        title: 'Username',
-        type: 'string',
-      },
-      email: {
-        title: 'E-mail',
-        type: 'string',
-      },
-      age: {
-        title: 'Age',
+      numOrdenesVistas: {
+        title: 'Vistas',
         type: 'number',
       },
     },
@@ -65,11 +61,11 @@ export class VendedoresComponent  {
   ){
     this.vendedoresService.getOrdenesVendedores().then( res => {
       console.log("PERRRRROOOOO", res);
+      this.source.load(res);
     }).catch( err => {
       console.error("La puta madre no funciona", err)
     })
-    const data = this.service.getData();
-    this.source.load(data);
+
   }
 
   ngOnInit(){

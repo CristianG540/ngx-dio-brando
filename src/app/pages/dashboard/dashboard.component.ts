@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, OnInit } from '@angular/core';
 
 //Services
-import { VendedorService } from "../../@core/data/vendedor.service";
+import { VendedorService } from "../../@core/data/vendedor/vendedor.service";
 
 @Component({
   selector: 'ngx-dashboard',
