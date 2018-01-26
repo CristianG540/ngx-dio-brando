@@ -7,9 +7,9 @@
  * @interface AllOrdenesInfo
  */
 export interface AllOrdenesInfo {
-  vendedor: string,
-  numOrdenes : number,
-  numOrdenesErr : number,
-  numOrdenesPend : number,
-  numOrdenesVistas : number
+  vendedor: string;
+  numOrdenes: number;
+  numOrdenesErr: number;
+  numOrdenesPend: number;
+  numOrdenesVistas: number;
 }

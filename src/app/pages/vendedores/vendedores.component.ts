@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalDataSource } from 'ng2-smart-table';
 
-//Services
-import { VendedorService } from "../../@core/data/vendedor/vendedor.service";
+// Services
+import { VendedorService } from '../../@core/data/vendedor/vendedor.service';
 import { SmartTableService } from '../../@core/data/smart-table.service';
 
 @Component({
   selector: 'ngx-vendedores',
-  templateUrl: './vendedores.component.html'
+  templateUrl: './vendedores.component.html',
 })
 export class VendedoresComponent  {
 
@@ -15,6 +15,11 @@ export class VendedoresComponent  {
    * objeto de configuracion para ng2-smart-table
    */
   private settings = {
+    actions : {
+      add: false,
+      edit : false,
+      delete : false,
+    },
     add: {
       addButtonContent: '<i class="nb-plus"></i>',
       createButtonContent: '<i class="nb-checkmark"></i>',
@@ -57,18 +62,15 @@ export class VendedoresComponent  {
 
   constructor (
     private vendedoresService: VendedorService,
-    private service: SmartTableService
-  ){
+    private service: SmartTableService,
+  ) {
     this.vendedoresService.getOrdenesVendedores().then( res => {
-      console.log("PERRRRROOOOO", res);
+      console.log('PERRRRROOOOO', res);
       this.source.load(res);
     }).catch( err => {
-      console.error("La puta madre no funciona", err)
-    })
+      console.error('La puta madre no funciona', err);
+    });
 
-  }
-
-  ngOnInit(){
   }
 
   onDeleteConfirm(event): void {

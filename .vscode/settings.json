@@ -1,4 +1,4 @@
 {
-    "typescript.tsdk": "./node_modules/typescript/lib",
-    "tslint.enable": false
+  "tslint.rulesDirectory": "./node_modules/codelyzer",
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
