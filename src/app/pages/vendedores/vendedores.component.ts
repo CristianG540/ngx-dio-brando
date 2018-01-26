@@ -63,17 +63,16 @@ export class VendedoresComponent  {
     private vendedoresService: VendedorService,
     private service: SmartTableService
   ){
-    const data = this.service.getData();
-    this.source.load(data);
-  }
-
-  ngOnInit(){
     this.vendedoresService.getOrdenesVendedores().then( res => {
       console.log("PERRRRROOOOO", res);
     }).catch( err => {
       console.error("La puta madre no funciona", err)
     })
+    const data = this.service.getData();
+    this.source.load(data);
+  }
 
+  ngOnInit(){
   }
 
   onDeleteConfirm(event): void {

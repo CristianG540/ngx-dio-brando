@@ -61,12 +61,27 @@ export class VendedorService {
   }
 
   public async getOrdenesVendedores(): Promise<any> {
-    let usuarios: string[] = await this.getAllVendedores();
-    for (let usuario of usuarios) {
-      this.bdName = usuario;
-      console.log("YIJAAAAAAA !!! HPTA", await this.getOrdenesVendedor());
+    let vendedores: string[] = await this.getAllVendedores();
+    let allVendedoresOrders = [];
+    let allErrorOrders = [];
+    for (let vendedor of vendedores) {
+      this.bdName = vendedor;
+      let ordenesUsuario = await this.getOrdenesVendedor();
+      let ordenesErr = _.filter(ordenesUsuario.rows, (row: any) => {
+        return (_.has(row.doc, 'error') && row.doc.error) || !_.has(row.doc, 'docEntry') || row.doc.docEntry == "" ;
+      });
+      allErrorOrders.push(ordenesErr);
+
+      /*allVendedoresOrders.push(
+        _.map(ordenesUsuario.rows, (row: any) => {
+          return row.doc;
+        })
+      );*/
     }
+    return allErrorOrders;
   }
+
+
 
   public set bdName(v : string) {
     this._remoteBD = new PouchDB(`${this._urlUsersCouchDB}/supertest%24${v}`, {
