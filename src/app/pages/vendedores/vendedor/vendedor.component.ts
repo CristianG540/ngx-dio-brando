@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LocalDataSource } from 'ng2-smart-table';
 import 'rxjs/add/operator/switchMap';
 import { Observable } from 'rxjs/Observable';
@@ -7,10 +7,13 @@ import { Subscription } from 'rxjs/Subscription';
 
 // Services
 import { VendedorService } from '../../../@core/data/vendedor/vendedor.service';
+// Models
+import { BasicInfoOrden } from '../../../@core/data/vendedor/models/basicInfoOrden';
 
 @Component({
   selector: 'ngx-vendedor',
   templateUrl: './vendedor.component.html',
+  styleUrls: ['./vendedor.component.scss'],
 })
 export class VendedorComponent implements OnInit, OnDestroy {
 
@@ -41,25 +44,25 @@ export class VendedorComponent implements OnInit, OnDestroy {
       confirmDelete: true,
     },
     columns: {
-      vendedor: {
-        title: 'Asesor',
-        type: 'string',
+      id: {
+        title: 'Id Orden',
+        sortDirection: 'desc',
       },
-      numOrdenes: {
-        title: 'Ordenes',
-        type: 'number',
+      cliente: {
+        title: 'Cliente NIT',
       },
-      numOrdenesErr: {
-        title: 'Errores',
-        type: 'number',
+      created_at: {
+        title: 'Fecha',
       },
-      numOrdenesPend: {
-        title: 'Pendientes',
-        type: 'number',
+      total: {
+        title: 'Total',
       },
-      numOrdenesVistas: {
-        title: 'Vistas',
-        type: 'number',
+      cantItems: {
+        title: 'Items',
+      },
+      estado: {
+        title: 'Estado',
+        type: 'html',
       },
     },
   };
@@ -67,14 +70,16 @@ export class VendedorComponent implements OnInit, OnDestroy {
 
   constructor(
     private vendedoresService: VendedorService,
-    private route: ActivatedRoute,
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) {}
 
   ngOnInit() {
-    this._paramsSub = this.route.params.subscribe(params => {
+    this._paramsSub = this.activatedRoute.params.subscribe(params => {
       this.vendedoresService.bdName = this._vendedor = params['vendedor'];
-      this.vendedoresService.getOrdenesVendedor().then(res => {
-        console.log('ordenes vendedores', res);
+      this.vendedoresService.formatOrdenesVendedor().then( res => {
+        console.log('ordenes vendedor', res);
+        this.source.load(res);
       }).catch(err => {
         console.error('Me cago en la puta errror', err);
       });
@@ -83,6 +88,11 @@ export class VendedorComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this._paramsSub.unsubscribe();
+  }
+
+  private onUserRowSelect(evt): void {
+    console.log('El buen evento', evt);
+    this.router.navigate(['pages/orden', evt.data.id]);
   }
 
 }

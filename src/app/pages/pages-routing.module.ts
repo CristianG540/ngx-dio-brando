@@ -5,6 +5,7 @@ import { PagesComponent } from './pages.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { VendedoresComponent } from './vendedores/vendedores.component';
 import { VendedorComponent } from './vendedores/vendedor/vendedor.component';
+import { OrdenComponent } from './orden/orden.component';
 
 const routes: Routes = [{
   path: '',
@@ -22,6 +23,10 @@ const routes: Routes = [{
     {
       path: 'ordenes-vendedor/:vendedor',
       component: VendedorComponent,
+    },
+    {
+      path: 'orden/:id',
+      component: OrdenComponent,
     },
   ],
 }];

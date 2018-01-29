@@ -13,6 +13,7 @@ import PouchDB from 'pouchdb';
 import { UtilsService } from '../../utils/utils.service';
 // Models
 import { AllOrdenesInfo } from './models/allOrdenesInfo';
+import { BasicInfoOrden } from './models/basicInfoOrden';
 
 @Injectable()
 export class VendedorService {
@@ -63,15 +64,15 @@ export class VendedorService {
     return docs;
   }
 
-  public async formatOrdenesVendedor(): Promise<any> {
+  public async formatOrdenesVendedor(): Promise<BasicInfoOrden[]> {
     const ordenesUsuario = await this.getOrdenesVendedor(); // traigo todas las ordenes del vendedor
     return _.map(ordenesUsuario.rows, (row: any) => {
-      let statusOrder: string = row.doc.estado;
+      let statusOrder: string = '<span class="badge badge-success">Procesado</span>'; // row.doc.estado
       const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
       const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
-      if ( String(row.doc.estado) === 'seen' ) { statusOrder = 'Revisado'; }
-      if ( hasDocEntry ) { statusOrder = 'Pendiente'; }
-      if ( hasError ) { statusOrder = 'Error'; }
+      if ( String(row.doc.estado) === 'seen' ) { statusOrder = '<span class="badge badge-info">Revisado</span>'; }
+      if ( hasDocEntry ) { statusOrder = '<span class="badge badge-warning">Pendiente</span>'; }
+      if ( hasError ) { statusOrder = '<span class="badge badge-danger">Error</span>'; }
 
       return {
         id         : row.doc._id,
