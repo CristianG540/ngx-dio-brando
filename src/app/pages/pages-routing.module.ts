@@ -21,11 +21,11 @@ const routes: Routes = [{
       pathMatch: 'full',
     },
     {
-      path: 'ordenes-vendedor/:vendedor',
+      path: 'ordenes/:vendedor',
       component: VendedorComponent,
     },
     {
-      path: 'orden/:id',
+      path: 'ordenes/:vendedor/:id',
       component: OrdenComponent,
     },
   ],

@@ -92,7 +92,7 @@ export class VendedorComponent implements OnInit, OnDestroy {
 
   private onUserRowSelect(evt): void {
     console.log('El buen evento', evt);
-    this.router.navigate(['pages/orden', evt.data.id]);
+    this.router.navigate(['pages/ordenes', this._vendedor, evt.data.id]);
   }
 
 }

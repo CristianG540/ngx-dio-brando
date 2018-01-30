@@ -45,15 +45,15 @@ export class VendedoresComponent  {
       },
       numOrdenesErr: {
         title: 'Errores',
-        type: 'number',
+        type: 'html',
       },
       numOrdenesPend: {
         title: 'Pendientes',
         type: 'number',
       },
       numOrdenesVistas: {
-        title: 'Vistas',
-        type: 'number',
+        title: 'Revisados',
+        type: 'html',
       },
     },
   };
@@ -73,7 +73,7 @@ export class VendedoresComponent  {
 
   private onUserRowSelect(evt): void {
     console.log('El buen evento', evt);
-    this.router.navigate(['pages/ordenes-vendedor', evt.data.vendedor]);
+    this.router.navigate(['pages/ordenes', evt.data.vendedor]);
   }
 
   onDeleteConfirm(event): void {

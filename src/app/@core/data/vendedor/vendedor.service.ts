@@ -9,11 +9,13 @@ import 'rxjs/add/operator/toPromise';
 import * as _ from 'lodash';
 import * as moment from 'moment';
 import PouchDB from 'pouchdb';
+import * as PouchUpsert from 'pouchdb-upsert';
 // Services
 import { UtilsService } from '../../utils/utils.service';
 // Models
 import { AllOrdenesInfo } from './models/allOrdenesInfo';
 import { BasicInfoOrden } from './models/basicInfoOrden';
+import { Orden } from '../orden/models/orden';
 
 @Injectable()
 export class VendedorService {
@@ -28,7 +30,9 @@ export class VendedorService {
   constructor(
     protected utils: UtilsService,
     private http: HttpClient,
-  ) {}
+  ) {
+    PouchDB.plugin(PouchUpsert);
+  }
 
   public async  getAllVendedores(): Promise<string[]> {
     const url: string = `${this._urlUsersCouchDB}/_all_dbs`;
@@ -57,10 +61,12 @@ export class VendedorService {
     return users;
   }
 
-  public async getOrdenesVendedor(): Promise<any> {
-    const docs = await this._remoteBD.allDocs({
-      include_docs: true,
-    });
+  public async getOrdenesVendedor(ids?: string[]): Promise<any> {
+    const options: any = {
+      include_docs : true,
+    };
+    if (ids) { options.keys = ids; }
+    const docs = await this._remoteBD.allDocs(options);
     return docs;
   }
 
@@ -70,10 +76,9 @@ export class VendedorService {
       let statusOrder: string = '<span class="badge badge-success">Procesado</span>'; // row.doc.estado
       const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
       const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
-      if ( String(row.doc.estado) === 'seen' ) { statusOrder = '<span class="badge badge-info">Revisado</span>'; }
       if ( hasDocEntry ) { statusOrder = '<span class="badge badge-warning">Pendiente</span>'; }
       if ( hasError ) { statusOrder = '<span class="badge badge-danger">Error</span>'; }
-
+      if ( String(row.doc.estado) === 'seen' ) { statusOrder = '<span class="badge badge-info">Revisado</span>'; }
       return {
         id         : row.doc._id,
         cliente    : row.doc.nitCliente,
@@ -97,6 +102,7 @@ export class VendedorService {
     // recupera un array con todos los nombres de usuarios de los vendedores
     const vendedores: string[] = await this.getAllVendedores();
     const allVendedoresOrdersInfo: AllOrdenesInfo[] = [];
+    let htmlErrores = '0'; // aqui guardo un html q basicamente en capsula el numero de errores en un badge de bootstrap
     // recorro el array con el nombre de usuario de los vendedores (que seria basicamente el nombre de la Bd tambien)
     for (const vendedor of vendedores) {
       this.bdName = vendedor; // Le digo a pouchDB que se conecte a la BD remota del usuario al que quiero consultar
@@ -127,16 +133,39 @@ export class VendedorService {
         if ( String(row.doc.estado) === 'seen' ) { ordenesVistas.push(row.doc); }
 
       }
+
+      if (ordenesErr.length - ordenesVistas.length > 0) {
+        htmlErrores = `<span class="badge badge-danger">${ordenesErr.length - ordenesVistas.length}</span>`;
+      }
       allVendedoresOrdersInfo.push({
         'vendedor'         : vendedor,
         'numOrdenes'       : ordenesUsuario.rows.length,
-        'numOrdenesErr'    : ordenesErr.length - ordenesVistas.length,
+        'numOrdenesErr'    : htmlErrores,
         'numOrdenesPend'   : ordenesPend.length,
         'numOrdenesVistas' : ordenesVistas.length,
       });
 
     }
     return allVendedoresOrdersInfo;
+  }
+
+  public async cambiarEstado(idDoc: string, estado: string): Promise<any> {
+    const res = await this._remoteBD.upsert(idDoc, (orden: Orden) => {
+      orden.updated_at = Date.now().toString();
+      orden.estado = estado;
+      return orden;
+    });
+
+    return res;
+  }
+
+  public async eliminarOrden(idDoc: string): Promise<any> {
+    const res = await this._remoteBD.upsert(idDoc, (orden: any) => {
+      orden._deleted = true;
+      return orden;
+    });
+
+    return res;
   }
 
   public set bdName(v: string) {

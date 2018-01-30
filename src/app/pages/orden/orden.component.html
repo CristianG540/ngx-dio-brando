@@ -1,9 +1,76 @@
-
 <nb-card>
   <nb-card-header>
-    Orden
+    Orden - {{ _idOrden }}
   </nb-card-header>
   <nb-card-body>
-
+    <!-- Informacion basica de la orden -->
+    <div class="row">
+      <div class="col">
+        <b>Codigo SAP:</b> {{ _orden?.docEntry }}
+      </div>
+      <div class="col">
+        <b>Cliente: </b> {{ _orden?.nitCliente }}
+      </div>
+      <div class="col">
+          <b>Observaciones:</b> {{ _orden?.observaciones }}
+      </div>
+    </div>
+    <br>
+    <!-- Cliente nuevo -->
+    <div class="row text-center" *ngIf="_orden?.newClient">
+      <div class="col">
+        <nb-card>
+          <nb-card-header>
+            Nuevo cliente:
+          </nb-card-header>
+          <nb-card-body>
+            <div class="row">
+              <div class="col"><b>Nombres: </b> {{ _orden?.newClient?.nombre }} </div>
+              <div class="col"><b>NIT: </b> {{ _orden?.newClient?.codCliente }} </div>
+            </div>
+          </nb-card-body>
+        </nb-card>
+      </div>
+    </div>
+    <!-- Error -->
+    <div class="row" *ngIf="_error">
+      <div class="col">
+        <nb-card>
+          <nb-card-header class="text-center">
+            <span style="color:red">Error:</span>
+          </nb-card-header>
+          <nb-card-body>
+            <pre class="prettyprint" > {{_error | json}} </pre>
+          </nb-card-body>
+        </nb-card>
+      </div>
+    </div>
+    <br>
+    <!-- Items de la orden -->
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <table class="table table-striped table-dark table-bordered table-sm">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">SKU</th>
+              <th scope="col">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of _orden?.items">
+              <td>{{ item._id }}</td>
+              <td>{{ item.cantidad }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <br>
+    <div class="row text-center">
+      <div class="col">
+        <button type="button" class="btn btn-hero-primary btn-demo" (click)="marcarRevisado()" [disabled]="(_orden?.estado)">Marcar como revisado</button>
+        <button type="button" class="btn btn-hero-danger btn-demo" (click)="eliminar()">Eliminar</button>
+      </div>
+    </div>
   </nb-card-body>
 </nb-card>

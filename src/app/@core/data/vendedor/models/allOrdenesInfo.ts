@@ -9,7 +9,7 @@
 export interface AllOrdenesInfo {
   vendedor: string;
   numOrdenes: number;
-  numOrdenesErr: number;
+  numOrdenesErr: string;
   numOrdenesPend: number;
   numOrdenesVistas: number;
 }
