@@ -15,23 +15,28 @@ export class DbActions {
   protected _data = []; // atributo base donde voy a guardar los datos de cada BD
 
   constructor (
-    protected dbName: string,
+    protected _dbName: string,
     protected utils: UtilsService,
-  ) {}
+    protected _env: any,
+  ) {
+    this._initDB();
+  }
 
   protected _initDB(): void {
     if (!this._initDB) {
       PouchDB.plugin(PouchUpsert);
-      this._localDB = new PouchDB('clientes');
-      this._remoteDB = new PouchDB(d.remote.name, {
+      this._localDB = new PouchDB(this._dbName);
+      this._remoteDB = new PouchDB(this._env.urlDB, {
         auth: {
-          username: 'Config.CDB_USER',
-          password: 'Config.CDB_PASS',
+          username: this._env.userDB,
+          password: this._env.passDB,
         },
         ajax: {
           timeout: 60000,
         },
       });
+
+      this._replicate();
     }
   }
 
@@ -49,18 +54,18 @@ export class DbActions {
       // Si la primera replicacion se completa con exito sincronizo la db
       // y de vuelvo la info sobre la sincronizacion
       this._statusDB = true;
-      console.warn(`${this.dbName} - First Replication complete`, info);
-      this.sync();
+      console.warn(`${this._dbName} - First Replication complete`, info);
+      this._sync();
     })
     .on('error', err => {
-      console.error(`${this.dbName} - totally unhandled error (shouldn't happen)`, err);
+      console.error(`${this._dbName} - totally unhandled error (shouldn't happen)`, err);
       // Me preguntare a mi mismo en el futuro por que mierda pongo a sincronizar
       // La base de datos si la primera sincronisacion falla, lo pongo aqui por q
       // si el usuario cierra la app y la vuelve a iniciar, el evento de initdb
       // se ejecutaria de nuevo y si por algun motivo no tiene internet entonces
       // la replicacion nunca se va completar y la base de datos
       // no se va a sincronizar, por eso lo lanzo de nuevo aqui el sync
-      this.sync();
+      this._sync();
     });
   }
 
@@ -71,12 +76,12 @@ export class DbActions {
     };
     PouchDB.sync(this._localDB, this._remoteDB, replicationOptions)
     .on('denied', err => {
-      console.error(`${this.dbName} - No se pudo sincronizar debido a permisos 👮`, err);
+      console.error(`${this._dbName} - No se pudo sincronizar debido a permisos 👮`, err);
     })
     .on('error', err => {
-      console.error(`${this.dbName} - sync totally unhandled error (shouldn't happen) 🐛`, err);
+      console.error(`${this._dbName} - sync totally unhandled error (shouldn't happen) 🐛`, err);
     });
-    this.reactToChanges();
+    this._reactToChanges();
   }
 
   protected _reactToChanges () {
@@ -92,7 +97,7 @@ export class DbActions {
         this._onUpdatedOrInserted(change.doc);
       }
     })
-    .on('error', err => console.error(`${this.dbName} - error al reacionar a los cambios 🐛`, err));
+    .on('error', err => console.error(`${this._dbName} - error al reacionar a los cambios 🐛`, err));
   }
 
   protected _onDeleted(id: string): void {
