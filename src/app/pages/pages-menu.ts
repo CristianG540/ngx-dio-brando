@@ -8,6 +8,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     home: true,
   },
   {
+    title: 'Clientes',
+    icon: 'ion-ios-people-outline',
+    link: '/pages/dashboard',
+  },
+  {
     title: 'Auth',
     icon: 'nb-locked',
     children: [

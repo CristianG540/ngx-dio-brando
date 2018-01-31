@@ -102,10 +102,10 @@ export class VendedorService {
     // recupera un array con todos los nombres de usuarios de los vendedores
     const vendedores: string[] = await this.getAllVendedores();
     const allVendedoresOrdersInfo: AllOrdenesInfo[] = [];
-    let htmlErrores = '0'; // aqui guardo un html q basicamente en capsula el numero de errores en un badge de bootstrap
     // recorro el array con el nombre de usuario de los vendedores (que seria basicamente el nombre de la Bd tambien)
     for (const vendedor of vendedores) {
       this.bdName = vendedor; // Le digo a pouchDB que se conecte a la BD remota del usuario al que quiero consultar
+      let htmlErrores = '0'; // aqui guardo un html q basicamente en capsula el numero de errores en un badge
       const ordenesUsuario = await this.getOrdenesVendedor(); // traigo todas las ordenes del vendedor
       const ordenesErr = []; // aqui guardo las ordenes que tienen errores de cada vendedor
       const ordenesPend = []; // aqui guardo las ordenes pendientes, osea las ordenes que aun no se han enviado a sap

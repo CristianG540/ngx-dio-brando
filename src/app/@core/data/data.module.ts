@@ -5,12 +5,14 @@ import { UserService } from './users.service';
 import { StateService } from './state.service';
 import { VendedorService } from './vendedor/vendedor.service';
 import { SmartTableService } from './smart-table.service';
+import { EnviromentService } from './enviroment.service';
 
 const SERVICES = [
   UserService,
   StateService,
   VendedorService,
   SmartTableService,
+  EnviromentService,
 ];
 
 @NgModule({
