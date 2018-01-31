@@ -14,7 +14,6 @@ export class ClienteService extends DbActions {
     protected _env: EnviromentService,
   ) {
     super('clientes', utils, _env.cliente);
-    debugger;
   }
 
 }
