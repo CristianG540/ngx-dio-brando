@@ -16,17 +16,21 @@ const routes: Routes = [{
       component: VendedoresComponent,
     },
     {
-      path: '',
-      redirectTo: 'dashboard',
-      pathMatch: 'full',
-    },
-    {
       path: 'ordenes/:vendedor',
       component: VendedorComponent,
     },
     {
       path: 'ordenes/:vendedor/:id',
       component: OrdenComponent,
+    },
+    {
+      path: 'clientes',
+      loadChildren: './clientes/clientes.module#ClientesModule',
+    },
+    {
+      path: '',
+      redirectTo: 'dashboard',
+      pathMatch: 'full',
     },
   ],
 }];
