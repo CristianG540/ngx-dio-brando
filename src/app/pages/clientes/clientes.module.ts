@@ -1,4 +1,6 @@
 import { NgModule } from '@angular/core';
+import { Ng2SmartTableModule } from 'ng2-smart-table';
+import { ToasterModule } from 'angular2-toaster';
 
 import { ThemeModule } from '../../@theme/theme.module';
 import { ClientesRoutingModule } from './clientes-routing.module';
@@ -16,6 +18,8 @@ const components = [
   imports: [
     ThemeModule,
     ClientesRoutingModule,
+    Ng2SmartTableModule,
+    ToasterModule,
   ],
   declarations: [
     ...components,

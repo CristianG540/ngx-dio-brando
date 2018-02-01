@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 import { MENU_ITEMS } from './pages-menu';
-
+import 'style-loader!angular2-toaster/toaster.css';
 @Component({
   selector: 'ngx-pages',
   template: `
