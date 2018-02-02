@@ -1,7 +1,8 @@
 // Libs terceros
 import * as _ from 'lodash';
-import * as PouchDB from 'pouchdb';
+import PouchDB from 'pouchdb';
 import * as PouchUpsert from 'pouchdb-upsert';
+import * as PouchQuickSearch from 'pouchdb-quick-search';
 
 // Services
 import { UtilsService } from '../../utils/utils.service';
@@ -23,7 +24,8 @@ export class DbActions {
   }
 
   protected _initDB(): void {
-    if (!this._initDB) {
+    if (!this._isInit) {
+      PouchDB.plugin(PouchQuickSearch);
       PouchDB.plugin(PouchUpsert);
       this._localDB = new PouchDB(this._dbName);
       this._remoteDB = new PouchDB(this._env.urlDB, {

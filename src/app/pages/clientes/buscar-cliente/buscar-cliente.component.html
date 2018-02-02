@@ -1,71 +1,14 @@
 <div class="row">
-  <div class="col-md-6">
+  <div class="col">
     <nb-card>
       <nb-card-header>
-        Layout Rotate Search
+        Buscar cliente
       </nb-card-header>
       <nb-card-body>
-        <nb-search type="rotate-layout" tag="rotate-layout"></nb-search>
-      </nb-card-body>
-    </nb-card>
-  </div>
-  <div class="col-md-6">
-    <nb-card>
-      <nb-card-header>
-        Modal Zoomin Search
-      </nb-card-header>
-      <nb-card-body>
-        <nb-search type="modal-zoomin" tag="modal-zoomin"></nb-search>
-      </nb-card-body>
-    </nb-card>
-  </div>
-  <div class="col-md-6">
-    <nb-card>
-      <nb-card-header>
-        Modal Move Search
-      </nb-card-header>
-      <nb-card-body>
-        <nb-search type="modal-move" tag="modal-move"></nb-search>
-      </nb-card-body>
-    </nb-card>
-  </div>
-  <div class="col-md-6">
-    <nb-card>
-      <nb-card-header>
-        Modal Drop Search
-      </nb-card-header>
-      <nb-card-body>
-        <nb-search type="modal-drop" tag="modal-drop"></nb-search>
-      </nb-card-body>
-    </nb-card>
-  </div>
-  <div class="col-md-6">
-    <nb-card>
-      <nb-card-header>
-        Modal Half Search
-      </nb-card-header>
-      <nb-card-body>
-        <nb-search type="modal-half" tag="modal-half"></nb-search>
-      </nb-card-body>
-    </nb-card>
-  </div>
-  <div class="col-md-6">
-    <nb-card>
-      <nb-card-header>
-        Curtain Search
-      </nb-card-header>
-      <nb-card-body>
-        <nb-search type="curtain" tag="curtain"></nb-search>
-      </nb-card-body>
-    </nb-card>
-  </div>
-  <div class="col-md-6">
-    <nb-card>
-      <nb-card-header>
-        Column Curtain Search
-      </nb-card-header>
-      <nb-card-body>
-        <nb-search type="column-curtain" tag="column-curtain"></nb-search>
+
+        <nb-search type="rotate-layout" tag="rotate-layout" placeholder="Ingrese NIT..."></nb-search>
+        <hr>
+        <ng2-smart-table [settings]="settings" [source]="source" ></ng2-smart-table>
       </nb-card-body>
     </nb-card>
   </div>
