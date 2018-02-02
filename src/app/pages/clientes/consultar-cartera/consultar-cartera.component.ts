@@ -80,7 +80,7 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
         this.carteraServ.searchCartera(data.term)
           .then( res => {
             if (res.length < 1) {
-              this.showToast('default', 'nit no valido', 'nit error');
+              this.showToast('error', 'NIT no valido', 'El NIT que ingreso no existe o es incorrecto');
             }
             console.log(res);
             this.totalCliente = this.carteraServ.totalCliente;
