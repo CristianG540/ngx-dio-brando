@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angular/core';
 import { NbSearchService } from '@nebular/theme';
 import { Subscription } from 'rxjs/Subscription';
-import { LocalDataSource } from 'ng2-smart-table';
+import { LocalDataSource, ViewCell } from 'ng2-smart-table';
 
 // Services
 import { ClienteService } from '../../../@core/data/cliente/cliente.service';
@@ -10,6 +10,7 @@ import { Cliente } from '../../../@core/data/cliente/models/cliente';
 
 @Component({
     selector: 'ngx-buscar-cliente',
+    styleUrls: ['./buscar-cliente.component.scss'],
     templateUrl: 'buscar-cliente.component.html',
 })
 export class BuscarClienteComponent implements OnInit, OnDestroy {
@@ -25,6 +26,12 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
       add: false,
       edit : false,
       delete : false,
+      custom: [
+        {
+          name: 'pene',
+          title: '<i class="nb-location"></i>',
+        },
+      ],
     },
     add: {
       addButtonContent: '<i class="nb-plus"></i>',
@@ -81,6 +88,10 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
             console.error('errror de mierda buscar clientes', err);
           });
       });
+  }
+
+  onCustom(event) {
+    alert(`Custom event '${event.action}' fired on row №: ${event.data._id}`);
   }
 
   ngOnDestroy() {

@@ -8,7 +8,7 @@
 
         <nb-search type="rotate-layout" tag="rotate-layout" placeholder="Ingrese NIT..."></nb-search>
         <hr>
-        <ng2-smart-table [settings]="settings" [source]="source" ></ng2-smart-table>
+        <ng2-smart-table id="tbl-buscar-cliente" [settings]="settings" [source]="source" (custom)="onCustom($event)"></ng2-smart-table>
       </nb-card-body>
     </nb-card>
   </div>
