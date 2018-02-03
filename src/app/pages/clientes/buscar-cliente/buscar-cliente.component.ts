@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angu
 import { NbSearchService } from '@nebular/theme';
 import { Subscription } from 'rxjs/Subscription';
 import { LocalDataSource, ViewCell } from 'ng2-smart-table';
-
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MapaModalComponent } from './mapa-modal/mapa-modal.component';
 // Services
 import { ClienteService } from '../../../@core/data/cliente/cliente.service';
 // Models
@@ -33,7 +34,7 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
         },
         {
           name: 'gmap2',
-          title: '<i class="nb-location"></i>',
+          title: '<i class="ion-clipboard"></i>',
         },
       ],
     },
@@ -76,6 +77,7 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
   constructor(
     private searchService: NbSearchService,
     private clienteServ: ClienteService,
+    private modalService: NgbModal,
   ) {
 
   }
@@ -95,7 +97,19 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
   }
 
   onCustom(event) {
-    alert(`Custom event '${event.action}' fired on row №: ${event.data._id}`);
+    // alert(`Custom event '${event.action}' fired on row №: ${event.data._id}`);
+    switch (event.action) {
+      case 'gmap':
+        this.showLargeModal(event.data);
+        break;
+      default:
+        break;
+    }
+  }
+
+  private showLargeModal(cliente: Cliente): void {
+    const activeModal = this.modalService.open(MapaModalComponent, { size: 'lg', container: 'nb-layout' });
+    activeModal.componentInstance.cliente = cliente;
   }
 
   ngOnDestroy() {
