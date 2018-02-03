@@ -28,7 +28,11 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
       delete : false,
       custom: [
         {
-          name: 'pene',
+          name: 'gmap',
+          title: '<i class="nb-location"></i>',
+        },
+        {
+          name: 'gmap2',
           title: '<i class="nb-location"></i>',
         },
       ],
