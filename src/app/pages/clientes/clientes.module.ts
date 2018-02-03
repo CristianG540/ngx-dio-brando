@@ -8,12 +8,15 @@ import { ClientesComponent } from './clientes.component';
 import { BuscarClienteComponent } from './buscar-cliente/buscar-cliente.component';
 import { MapaModalComponent } from './buscar-cliente/mapa-modal/mapa-modal.component';
 import { ConsultarCarteraComponent } from './consultar-cartera/consultar-cartera.component';
+import { MapaClientesComponent } from './mapa-clientes/mapa-clientes.component';
+
 import { EnviromentService as env } from '../../@core/data/enviroment.service';
 
 const components = [
   ClientesComponent,
   BuscarClienteComponent,
   ConsultarCarteraComponent,
+  MapaClientesComponent,
   MapaModalComponent,
 ];
 

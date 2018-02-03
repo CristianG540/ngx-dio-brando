@@ -17,8 +17,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/clientes/buscar-cliente',
       },
       {
-        title: 'Consultar Cartera',
+        title: 'Consultar cartera',
         link: '/pages/clientes/consultar-cartera',
+      },
+      {
+        title: 'Mapa clientes',
+        link: '/pages/clientes/mapa-clientes',
       },
     ],
   },
