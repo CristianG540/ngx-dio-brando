@@ -5,7 +5,14 @@
         Mapa Clientes
       </nb-card-header>
       <nb-card-body>
-        Esto es un mapa
+        <agm-map [latitude]="_lat" [longitude]="_lng" [zoom]="_zoom">
+          <agm-marker
+            *ngFor="let cliente of _clientes"
+            [latitude]="cliente?.ubicacion?.latitud"
+            [longitude]="cliente?.ubicacion?.longitud"
+            [label]="cliente?._id">
+          </agm-marker>
+        </agm-map>
       </nb-card-body>
     </nb-card>
   </div>

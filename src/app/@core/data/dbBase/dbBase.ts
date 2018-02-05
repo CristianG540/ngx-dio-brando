@@ -1,6 +1,7 @@
 // Libs terceros
 import * as _ from 'lodash';
 import PouchDB from 'pouchdb';
+import PouchFind from 'pouchdb-find';
 import * as PouchUpsert from 'pouchdb-upsert';
 import * as PouchQuickSearch from 'pouchdb-quick-search';
 
@@ -10,7 +11,7 @@ import { UtilsService } from '../../utils/utils.service';
 export class DbActions {
 
   protected _localDB: any;
-  protected _remoteDB: any;
+  protected _remoteDB: PouchDB.Database;
   protected _statusDB: boolean = false;
   protected _isInit: boolean = false; // Este atributo me sirve para verificar si ya cree la instancia de pouchDB
   protected _data = []; // atributo base donde voy a guardar los datos de cada BD
@@ -27,6 +28,7 @@ export class DbActions {
     if (!this._isInit) {
       PouchDB.plugin(PouchQuickSearch);
       PouchDB.plugin(PouchUpsert);
+      PouchDB.plugin(PouchFind);
       this._localDB = new PouchDB(this._dbName);
       this._remoteDB = new PouchDB(this._env.urlDB, {
         auth: {

@@ -81,5 +81,27 @@ export class ClienteService extends DbActions {
 
   }
 
+  public async getCoordenadas(): Promise<Cliente[]> {
+
+    await this._remoteDB.createIndex({
+      index: {
+        fields: ['ubicacion'],
+        name: 'clientes_ubicacion_name',
+        ddoc: 'clientes_ubicacion_ddoc',
+        type: 'json',
+      },
+    });
+
+    const res = await this._remoteDB.find({
+      selector: {
+        ubicacion: {
+          $gte: null,
+        },
+      },
+      use_index: 'clientes_ubicacion_ddoc',
+    });
+    return res.docs as Cliente[];
+  }
+
 }
 
