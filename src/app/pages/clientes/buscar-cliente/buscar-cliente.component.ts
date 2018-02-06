@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { LocalDataSource, ViewCell } from 'ng2-smart-table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { MapaModalComponent } from './mapa-modal/mapa-modal.component';
+import { Router } from '@angular/router';
 // Services
 import { ClienteService } from '../../../@core/data/cliente/cliente.service';
 // Models
@@ -35,7 +36,7 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
           title: '<i class="nb-location"></i>',
         },
         {
-          name: 'gmap2',
+          name: 'cartera',
           title: '<i class="ion-clipboard"></i>',
         },
       ],
@@ -80,8 +81,8 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
     private searchService: NbSearchService,
     private clienteServ: ClienteService,
     private modalService: NgbModal,
+    private router: Router,
   ) {
-
   }
 
   ngOnInit() {
@@ -103,6 +104,9 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
     switch (event.action) {
       case 'gmap':
         this.showLargeModal(event.data);
+        break;
+      case 'cartera':
+        this.router.navigate(['pages/clientes/consultar-cartera'], { queryParams: { nit: event.data._id } });
         break;
       default:
         break;

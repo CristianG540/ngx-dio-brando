@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NbSearchService } from '@nebular/theme';
 import { Subscription } from 'rxjs/Subscription';
 import { LocalDataSource } from 'ng2-smart-table';
+import { ActivatedRoute } from '@angular/router';
 
 // Services
 import { CarteraService } from '../../../@core/data/cartera/cartera.service';
@@ -16,10 +17,12 @@ import { ToasterService, ToasterConfig, Toast, BodyOutputType } from 'angular2-t
 })
 export class ConsultarCarteraComponent implements OnInit, OnDestroy {
 
+  private onSearchSubmitSub: Subscription;
+  private queryParamsSub: Subscription;
+
   private _config: ToasterConfig; // toatr config object
   private nitCliente: string = '';
   private totalCliente: number = 0;
-  private onSearchSubmitSub: Subscription;
   private source: LocalDataSource = new LocalDataSource();
   /**
    * objeto de configuracion para ng2-smart-table
@@ -69,6 +72,7 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
     private toasterService: ToasterService,
     private searchService: NbSearchService,
     private carteraServ: CarteraService,
+    private route: ActivatedRoute,
     private utils: UtilsService,
   ) {
   }
@@ -77,19 +81,15 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
     this.onSearchSubmitSub = this.searchService.onSearchSubmit()
       .subscribe( (data: { term: string, tag: string }) => {
         console.log('a BER !!!!!', data);
-        this.nitCliente = data.term;
-        this.carteraServ.searchCartera(data.term)
-          .then( res => {
-            if (res.length < 1) {
-              this.showToast('error', 'NIT no valido', 'El NIT que ingreso no existe o es incorrecto');
-            }
-            console.log(res);
-            this.totalCliente = this.carteraServ.totalCliente;
-            this.source.load(res);
-          }).catch( err => {
-            console.log('Error al buscar en cartera', err);
-          });
+        this.loadData(data.term);
       });
+
+    this.queryParamsSub = this.route.queryParams
+      .subscribe(params => {
+        console.log(params); // {order: "popular"}
+        this.loadData(params.nit);
+      });
+
   }
 
   private showToast(type: string, title: string, body: string) {
@@ -113,8 +113,24 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
     this.toasterService.popAsync(toast);
   }
 
+  private loadData(nitCliente: string) {
+    this.nitCliente = nitCliente;
+    this.carteraServ.searchCartera(nitCliente)
+      .then( res => {
+        if (res.length < 1) {
+          this.showToast('error', 'NIT no valido', 'El NIT que ingreso no existe o es incorrecto');
+        }
+        console.log(res);
+        this.totalCliente = this.carteraServ.totalCliente;
+        this.source.load(res);
+      }).catch( err => {
+        console.log('Error al buscar en cartera', err);
+      });
+  }
+
   ngOnDestroy() {
     this.onSearchSubmitSub.unsubscribe();
+    this.queryParamsSub.unsubscribe();
   }
 
 }
