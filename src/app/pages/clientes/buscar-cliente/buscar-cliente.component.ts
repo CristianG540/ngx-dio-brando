@@ -23,7 +23,9 @@ export class BuscarClienteComponent implements OnInit, OnDestroy {
    * objeto de configuracion para ng2-smart-table
    */
   private settings = {
+    noDataMessage: 'No hay datos en este momento',
     actions : {
+      columnTitle: 'Acciones',
       add: false,
       edit : false,
       delete : false,

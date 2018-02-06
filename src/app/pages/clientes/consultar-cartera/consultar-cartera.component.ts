@@ -25,6 +25,7 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
    * objeto de configuracion para ng2-smart-table
    */
   private settings = {
+    noDataMessage: 'No hay datos en este momento',
     actions : {
       add: false,
       edit : false,
