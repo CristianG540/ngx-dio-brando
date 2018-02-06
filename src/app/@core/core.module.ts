@@ -14,7 +14,7 @@ const NB_CORE_PROVIDERS = [
       email: {
         service: NbEmailPassAuthProvider,
         config: {
-          baseEndpoint: 'http://127.0.0.1:4400',
+          baseEndpoint: 'https://www.gatortyres.com:4410',
           login: {
             endpoint: '/api/auth/login',
           },
