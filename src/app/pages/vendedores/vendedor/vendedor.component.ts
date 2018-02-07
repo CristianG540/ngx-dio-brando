@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { LocalDataSource } from 'ng2-smart-table';
 import 'rxjs/add/operator/switchMap';
 import { Observable } from 'rxjs/Observable';
@@ -73,6 +74,7 @@ export class VendedorComponent implements OnInit, OnDestroy {
     private vendedoresService: VendedorService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private location: Location,
   ) {}
 
   ngOnInit() {
@@ -94,6 +96,10 @@ export class VendedorComponent implements OnInit, OnDestroy {
   private onUserRowSelect(evt): void {
     console.log('El buen evento', evt);
     this.router.navigate(['pages/ordenes', this._vendedor, evt.data.id]);
+  }
+
+  private back(): void {
+    this.location.back();
   }
 
 }

@@ -1,6 +1,13 @@
 <nb-card>
   <nb-card-header>
-    Orden - {{ _idOrden }}
+    <div class="row">
+      <div class="col">
+        <button class="btn btn-outline-primary btn-icon btn-tn" (click)="back()" ><i class="ion-chevron-left"></i></button>
+      </div>
+      <div class="col">
+        Orden - <b>{{ _idOrden }}</b>
+      </div>
+    </div>
   </nb-card-header>
   <nb-card-body>
     <!-- Informacion basica de la orden -->

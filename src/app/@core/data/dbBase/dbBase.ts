@@ -41,6 +41,7 @@ export class DbActions {
       });
 
       this._replicate();
+      this._isInit = true;
     }
   }
 

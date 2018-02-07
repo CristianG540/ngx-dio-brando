@@ -64,12 +64,16 @@ export class VendedoresComponent  {
     private vendedoresService: VendedorService,
     private router: Router,
   ) {
-    this.vendedoresService.getOrdenesVendedores().then( res => {
-      console.log('PERRRRROOOOO', res);
-      this.source.load(res);
-    }).catch( err => {
-      console.error('La puta madre no funciona', err);
-    });
+    if (this.vendedoresService.lkIsLoaded) {
+      this.source.load(this.vendedoresService.allOrdenesInfo);
+    } else {
+      this.vendedoresService.getOrdenesVendedores().then( res => {
+        console.log('Consulta-Info Ordenes por vendedor', res);
+        this.source.load(res);
+      }).catch( err => {
+        console.error('La puta madre no funciona', err);
+      });
+    }
   }
 
   private onUserRowSelect(evt): void {
@@ -77,12 +81,13 @@ export class VendedoresComponent  {
     this.router.navigate(['pages/ordenes', evt.data.vendedor]);
   }
 
-  onDeleteConfirm(event): void {
-    if (window.confirm('Are you sure you want to delete?')) {
-      event.confirm.resolve();
-    } else {
-      event.confirm.reject();
-    }
+  private reloadGrid(): void {
+    this.vendedoresService.getOrdenesVendedores().then( res => {
+      console.log('Consulta-Info Ordenes por vendedor', res);
+      this.source.load(res);
+    }).catch( err => {
+      console.error('La puta madre no funciona', err);
+    });
   }
 
 }

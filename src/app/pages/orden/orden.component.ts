@@ -84,4 +84,8 @@ export class OrdenComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  private back(): void {
+    this.location.back();
+  }
+
 }

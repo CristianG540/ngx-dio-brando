@@ -87,7 +87,9 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
     this.queryParamsSub = this.route.queryParams
       .subscribe(params => {
         console.log(params); // {order: "popular"}
-        this.loadData(params.nit);
+        if (params.nit) {
+          this.loadData(params.nit);
+        }
       });
 
   }
@@ -118,7 +120,7 @@ export class ConsultarCarteraComponent implements OnInit, OnDestroy {
     this.carteraServ.searchCartera(nitCliente)
       .then( res => {
         if (res.length < 1) {
-          this.showToast('error', 'NIT no valido', 'El NIT que ingreso no existe o es incorrecto');
+          this.showToast('warning', 'No hay resultados', 'El NIT que ingreso no existe o no tiene datos en cartera');
         }
         console.log(res);
         this.totalCliente = this.carteraServ.totalCliente;

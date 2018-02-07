@@ -10,6 +10,7 @@ import * as _ from 'lodash';
 import * as moment from 'moment';
 import PouchDB from 'pouchdb';
 import * as PouchUpsert from 'pouchdb-upsert';
+import * as Loki from 'lokijs';
 // Services
 import { UtilsService } from '../../utils/utils.service';
 // Models
@@ -27,11 +28,39 @@ export class VendedorService {
   private _userDB: string = 'admin';
   private _passDB: string = 'Webmaster2017#@';
 
+  /**
+   * En esta variable guardo una instancia de lokiDB,
+   * lo que hago mas o menos es gurdar en esta bd en memoria es un
+   * array de objetos, cada uno de estos objetos tiene el nombre del
+   * vendedor y una info basica sobre las ordenes de ese vendedor (vease la interfaz "AllOrdenesInfo")
+   * Y me preguntare, para que mierda darme la molestia de usar una bd en memoria, bueno seria por esto
+   * al tratar de recuperar la info de los vendedores y sus ordenes tengo que consultar diferentes BDS
+   * en couchdb una por cada vendedor, lo que vuelve muy lenta la consulta, el truco aqui es consultar una vez
+   * y almacenar los datos en loki, de esta forma no tengo que estar consultando a couchdb que se demora mucho
+   */
+  private _lkVendedorDB: Loki;
+  // Coleccion con la info de las ordens por cada vendedor
+  private _lkOrdenesInfoTbl: Loki.Collection;
+  private _lkIsInit: boolean = false; // Este atributo me sirve para verificar si ya cree la instancia de loki
+  private _lkIsLoaded: boolean = false; // Este atributo me sirve para verificar si ya se hizo la primera carga de datos
+
   constructor(
     protected utils: UtilsService,
     private http: HttpClient,
   ) {
     PouchDB.plugin(PouchUpsert);
+    this._initLokiDB();
+  }
+
+  private _initLokiDB(): void {
+    if (!this._lkIsInit) {
+      this._lkVendedorDB = new Loki('ordenesInfoDB'); // Creo la bd en loki
+      // creo la coleccion que me va contener los datos
+      this._lkOrdenesInfoTbl = this._lkVendedorDB.addCollection('ordenesInfo', {
+        unique: ['vendedor'],
+      });
+      this._lkIsInit = true;
+    }
   }
 
   public async  getAllVendedores(): Promise<string[]> {
@@ -99,6 +128,12 @@ export class VendedorService {
    * @memberof VendedorService
    */
   public async getOrdenesVendedores(): Promise<AllOrdenesInfo[]> {
+    // limpio los datos de la coleccion para actualizarlos todos
+    // tambien podria hacer un upsert, pero como en este caso
+    // no estoy seguro de que valores cambiaron, entonces simplemente
+    // vacio y creo toda la coneccion de nuevo para actualizarla
+    // creo q asi gano un poco mas de performance
+    this._lkOrdenesInfoTbl.clear();
     // recupera un array con todos los nombres de usuarios de los vendedores
     const vendedores: string[] = await this.getAllVendedores();
     const allVendedoresOrdersInfo: AllOrdenesInfo[] = [];
@@ -137,7 +172,8 @@ export class VendedorService {
       if (ordenesErr.length - ordenesVistas.length > 0) {
         htmlErrores = `<span class="badge badge-danger">${ordenesErr.length - ordenesVistas.length}</span>`;
       }
-      allVendedoresOrdersInfo.push({
+
+      this._lkOrdenesInfoTbl.insert({
         'vendedor'         : vendedor,
         'numOrdenes'       : ordenesUsuario.rows.length,
         'numOrdenesErr'    : htmlErrores,
@@ -145,8 +181,53 @@ export class VendedorService {
         'numOrdenesVistas' : ordenesVistas.length,
       });
 
+      /*this._lkUpsert(this._lkOrdenesInfoTbl, 'vendedor', {
+        'vendedor'         : vendedor,
+        'numOrdenes'       : ordenesUsuario.rows.length,
+        'numOrdenesErr'    : htmlErrores,
+        'numOrdenesPend'   : ordenesPend.length,
+        'numOrdenesVistas' : ordenesVistas.length,
+      });*/
+
     }
-    return allVendedoresOrdersInfo;
+    this._lkIsLoaded = true;
+    return this.allOrdenesInfo;
+  }
+
+  /**
+   * Performs an upsert.
+   * This means performing an update if the record exists, or performing an
+   * insert if it doesn't.
+   * LokiJS (as at version 1.2.5) lacks this function.
+   * TODO: Remove this function when LokiJS has built-in support for upserts.
+   * @param {object} collection - The target DB collection.
+   * @param {string} idField - The field which contains the record's unique ID.
+   * @param {object} record - The record to be upserted.
+   * @depends lodash
+   * @example
+   * this._lkUpsert(coleccion_objetivo, 'nombre_campo_unico_coleccion', {
+   *   'nombre_campo_unico_coleccion' : '123457',
+   *   'propietario'                  : 'marcos',
+   *   'telefono'                     : 21232131
+   * });
+   */
+  private _lkUpsert(collection: Loki.Collection, idField, record): void {
+    const existingRecord = collection.by(idField, record[idField]);
+    if (existingRecord) {
+      // The record exists. Do an update.
+      const updatedRecord = existingRecord;
+      // Only update the fields contained in `record`. All fields not contained
+      // in `record` remain unchanged.
+      for ( const key in record ) {
+        if (record.hasOwnProperty(key)) {
+          updatedRecord[key] = record[key];
+        }
+      }
+      collection.update(updatedRecord);
+    } else {
+      // The record doesn't exist. Do an insert.
+      collection.insert(record);
+    }
   }
 
   public async cambiarEstado(idDoc: string, estado: string): Promise<any> {
@@ -175,6 +256,18 @@ export class VendedorService {
         password: this._passDB,
       },
     });
+  }
+
+  public get lkIsInit(): boolean {
+    return this._lkIsInit;
+  }
+
+  public get lkIsLoaded(): boolean {
+    return this._lkIsLoaded;
+  }
+
+  public get allOrdenesInfo(): AllOrdenesInfo[] {
+    return this._lkOrdenesInfoTbl.find();
   }
 
 }
