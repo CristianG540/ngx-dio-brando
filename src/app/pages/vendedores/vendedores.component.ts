@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 
 // Services
 import { VendedorService } from '../../@core/data/vendedor/vendedor.service';
+import { UtilsService } from '../../@core/utils/utils.service';
 
 @Component({
   selector: 'ngx-vendedores',
@@ -59,18 +60,24 @@ export class VendedoresComponent  {
     },
   };
   private source: LocalDataSource = new LocalDataSource();
+  // Variable global de prettyprint
+  private readonly PW = window['pleaseWait'];
 
   constructor (
     private vendedoresService: VendedorService,
+    private util: UtilsService,
     private router: Router,
   ) {
     if (this.vendedoresService.lkIsLoaded) {
       this.source.load(this.vendedoresService.allOrdenesInfo);
     } else {
+      const loading_screen: any = this.util.showPleaseWait();
       this.vendedoresService.getOrdenesVendedores().then( res => {
         console.log('Consulta-Info Ordenes por vendedor', res);
         this.source.load(res);
+        loading_screen.finish();
       }).catch( err => {
+        loading_screen.finish();
         console.error('La puta madre no funciona', err);
       });
     }
@@ -82,10 +89,13 @@ export class VendedoresComponent  {
   }
 
   private reloadGrid(): void {
+    const loading_screen: any = this.util.showPleaseWait();
     this.vendedoresService.getOrdenesVendedores().then( res => {
       console.log('Consulta-Info Ordenes por vendedor', res);
       this.source.load(res);
+      loading_screen.finish();
     }).catch( err => {
+      loading_screen.finish();
       console.error('La puta madre no funciona', err);
     });
   }
