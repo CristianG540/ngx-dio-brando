@@ -34,16 +34,13 @@ export class ClienteService extends DbActions {
    */
   public async searchCliente(query: string): Promise<Cliente[]> {
 
-    const url: string = `${this._env.cliente.urlDB}/_design/app/_search/client_search`;
+    const url: string = `${this._env.cliente.elasticUrl}/_search`;
     const params = new HttpParams()
-      .set('q', `nombre_cliente:"${query}"~`)
-      .set('limit', '50')
-      .set('include_docs', 'true');
+      .set('q', `doc.nombre_cliente:"${query}"~`);
     const options = {
       headers: new HttpHeaders({
         'Accept'       : 'application/json',
         'Content-Type' : 'application/json',
-        'Authorization': 'Basic ' + btoa(`${this._env.cliente.userDB}:${this._env.cliente.passDB}`),
       }),
       params: params,
     };
@@ -58,12 +55,17 @@ export class ClienteService extends DbActions {
     try {
 
       const res = await this.http.get( url, options ).pipe(
-        map( (data: { bookmark: string; rows: any[]; total_rows: number; }) => {
-          return _.map( data.rows, (row: any): Cliente => row.doc );
+        map((response: any) => {
+          return response;
         }),
         timeout(5000),
       ).toPromise();
-      return res;
+
+      let data = [];
+      data = _.map(res.hits.hits, (hit: any) => {
+        return hit._source.doc;
+      });
+      return data;
 
     } catch (error) {
 

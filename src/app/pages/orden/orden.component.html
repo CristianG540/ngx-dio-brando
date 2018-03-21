@@ -75,6 +75,7 @@
     <br>
     <div class="row text-center">
       <div class="col">
+        <button type="button" class="btn btn-hero-primary btn-demo" (click)="verUbicacion()" [disabled]="(!_orden?.location)">Ubicacion</button>
         <button type="button" class="btn btn-hero-primary btn-demo" (click)="marcarRevisado()" [disabled]="(_orden?.estado)">Marcar como revisado</button>
         <button type="button" class="btn btn-hero-danger btn-demo" (click)="eliminar()">Eliminar</button>
       </div>

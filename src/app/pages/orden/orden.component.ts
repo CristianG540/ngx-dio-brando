@@ -2,6 +2,8 @@ import { Component, OnInit, OnDestroy, AfterViewChecked } from '@angular/core';
 import { Location } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MapaModalComponent } from './mapa-modal/mapa-modal.component';
 // Services
 import { VendedorService } from '../../@core/data/vendedor/vendedor.service';
 // Models
@@ -23,6 +25,7 @@ export class OrdenComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   constructor (
     private vendedoresService: VendedorService,
+    private modalService: NgbModal,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private location: Location,
@@ -34,6 +37,7 @@ export class OrdenComponent implements OnInit, OnDestroy, AfterViewChecked {
       this._idOrden = params['id'];
       this.vendedoresService.bdName = this._vendedor = params['vendedor'];
       this.vendedoresService.getOrdenesVendedor([params['id']]).then((res) => {
+
         console.log('Datos orden', res.rows[0].doc);
         this._orden = res.rows[0].doc;
         this._error = (this._orden.error) ? JSON.parse(this._orden.error) : '';
@@ -82,6 +86,11 @@ export class OrdenComponent implements OnInit, OnDestroy, AfterViewChecked {
     } else {
       alert('se arrepintio papu');
     }
+  }
+
+  private verUbicacion(): void {
+    const activeModal = this.modalService.open(MapaModalComponent, { size: 'lg', container: 'nb-layout' });
+    activeModal.componentInstance.orden = this._orden;
   }
 
   private back(): void {
