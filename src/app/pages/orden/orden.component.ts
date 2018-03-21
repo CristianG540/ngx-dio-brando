@@ -37,7 +37,7 @@ export class OrdenComponent implements OnInit, OnDestroy, AfterViewChecked {
       this._idOrden = params['id'];
       this.vendedoresService.bdName = this._vendedor = params['vendedor'];
       this.vendedoresService.getOrdenesVendedor([params['id']]).then((res) => {
-
+        res = res.docs;
         console.log('Datos orden', res.rows[0].doc);
         this._orden = res.rows[0].doc;
         this._error = (this._orden.error) ? JSON.parse(this._orden.error) : '';

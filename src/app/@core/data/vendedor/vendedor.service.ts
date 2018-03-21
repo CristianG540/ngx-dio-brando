@@ -21,7 +21,8 @@ import { Orden } from '../orden/models/orden';
 @Injectable()
 export class VendedorService {
 
-  private _remoteBD: PouchDB.Database; // Nombre de la bd a la que voy a consultar
+  private _remoteBD: PouchDB.Database; // Base de datos a la que voy a consultar
+  private _vendedor: string = ''; // Nombre del vendodor al que le voy a consultar las ordenes
   // Url de la BD en couchDB con los usuarios de la app
   private _urlUsersCouchDB: string = 'https://vm257.tmdcloud.com:6984';
   // Credenciales
@@ -95,13 +96,17 @@ export class VendedorService {
       include_docs : true,
     };
     if (ids) { options.keys = ids; }
+    const vendedor = this._vendedor;
     const docs = await this._remoteBD.allDocs(options);
-    return docs;
+    return {
+      vendedor: vendedor,
+      docs: docs,
+    };
   }
 
   public async formatOrdenesVendedor(): Promise<BasicInfoOrden[]> {
     const ordenesUsuario = await this.getOrdenesVendedor(); // traigo todas las ordenes del vendedor
-    return _.map(ordenesUsuario.rows, (row: any) => {
+    return _.map(ordenesUsuario.docs.rows, (row: any) => {
       let statusOrder: string = '<span class="badge badge-success">Procesado</span>'; // row.doc.estado
       const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
       const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
@@ -137,59 +142,62 @@ export class VendedorService {
     // recupera un array con todos los nombres de usuarios de los vendedores
     const vendedores: string[] = await this.getAllVendedores();
     const allVendedoresOrdersInfo: AllOrdenesInfo[] = [];
+    const promsOrdenesVendedor: Promise<any>[] = [];
     // recorro el array con el nombre de usuario de los vendedores (que seria basicamente el nombre de la Bd tambien)
     for (const vendedor of vendedores) {
       this.bdName = vendedor; // Le digo a pouchDB que se conecte a la BD remota del usuario al que quiero consultar
-      let htmlErrores = '0'; // aqui guardo un html q basicamente en capsula el numero de errores en un badge
-      const ordenesUsuario = await this.getOrdenesVendedor(); // traigo todas las ordenes del vendedor
-      const ordenesErr = []; // aqui guardo las ordenes que tienen errores de cada vendedor
-      const ordenesPend = []; // aqui guardo las ordenes pendientes, osea las ordenes que aun no se han enviado a sap
-      const ordenesVistas = []; // guardo las ordenes marcadas como vistas en la pag de administrador dio-brando
-      for (const row of ordenesUsuario.rows) {
-        /**
-         * si un pedido no tiene docEntry esta variable pasa a ser "true",
-         * el hecho de q un pedido no tenga docEntry casi siempre significa
-         * que esta pendiente, no ha subido a sap
-        */
-        const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
-        // si el pedido tiene un error esta variable pasa a true
-        const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
-        // Verifico si la orden de la posicion actual tiene un error y la meto en el array respectivo
-        if ( hasError || hasDocEntry ) {
-          ordenesErr.push(row.doc);
-        }
-        // Verifico si la orden esta pendiente y no tiene errores
-        if (hasDocEntry) {
-          if ( !hasError ) {
-            ordenesPend.push(row.doc);
-          }
-        }
-        // verifico si la orden esta marcada como vista
-        if ( String(row.doc.estado) === 'seen' ) { ordenesVistas.push(row.doc); }
-
-      }
-
-      if (ordenesErr.length - ordenesVistas.length > 0) {
-        htmlErrores = `<span class="badge badge-danger">${ordenesErr.length - ordenesVistas.length}</span>`;
-      }
-
-      this._lkOrdenesInfoTbl.insert({
-        'vendedor'         : vendedor,
-        'numOrdenes'       : ordenesUsuario.rows.length,
-        'numOrdenesErr'    : htmlErrores,
-        'numOrdenesPend'   : ordenesPend.length,
-        'numOrdenesVistas' : ordenesVistas.length,
-      });
-
-      /*this._lkUpsert(this._lkOrdenesInfoTbl, 'vendedor', {
-        'vendedor'         : vendedor,
-        'numOrdenes'       : ordenesUsuario.rows.length,
-        'numOrdenesErr'    : htmlErrores,
-        'numOrdenesPend'   : ordenesPend.length,
-        'numOrdenesVistas' : ordenesVistas.length,
-      });*/
-
+      promsOrdenesVendedor.push(this.getOrdenesVendedor()); // traigo todas las ordenes del vendedor
     }
+
+    try {
+      const results = await Promise.all(promsOrdenesVendedor);
+      for (const result of results) {
+        let htmlErrores = '0'; // aqui guardo un html q basicamente en capsula el numero de errores en un badge
+        const ordenesErr = []; // aqui guardo las ordenes que tienen errores de cada vendedor
+        const ordenesPend = []; // aqui guardo las ordenes pendientes, osea las ordenes que aun no se han enviado a sap
+        const ordenesVistas = []; // guardo las ordenes marcadas como vistas en la pag de administrador dio-brando
+        for (const row of result.docs.rows) {
+          /**
+           * si un pedido no tiene docEntry esta variable pasa a ser "true",
+           * el hecho de q un pedido no tenga docEntry casi siempre significa
+           * que esta pendiente, no ha subido a sap
+          */
+          const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
+          // si el pedido tiene un error esta variable pasa a true
+          const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
+          // Verifico si la orden de la posicion actual tiene un error y la meto en el array respectivo
+          if ( hasError || hasDocEntry ) {
+            ordenesErr.push(row.doc);
+          }
+          // Verifico si la orden esta pendiente y no tiene errores
+          if (hasDocEntry) {
+            if ( !hasError ) {
+              ordenesPend.push(row.doc);
+            }
+          }
+          // verifico si la orden esta marcada como vista
+          if ( String(row.doc.estado) === 'seen' ) { ordenesVistas.push(row.doc); }
+
+        }
+
+        if (ordenesErr.length - ordenesVistas.length > 0) {
+          htmlErrores = `<span class="badge badge-danger">${ordenesErr.length - ordenesVistas.length}</span>`;
+        }
+
+        this._lkOrdenesInfoTbl.insert({
+          'vendedor'         : result.vendedor,
+          'numOrdenes'       : result.docs.rows.length,
+          'numOrdenesErr'    : htmlErrores,
+          'numOrdenesPend'   : ordenesPend.length,
+          'numOrdenesVistas' : ordenesVistas.length,
+        });
+      }
+    } catch (err) {
+      console.error('error al recuperar las ordenes de los vendedores', err);
+      window.alert('Error al recuperar las ordenes de los vendedores');
+    }
+
+
     this._lkIsLoaded = true;
     return this.allOrdenesInfo;
   }
@@ -256,6 +264,7 @@ export class VendedorService {
         password: this._passDB,
       },
     });
+    this._vendedor = v;
   }
 
   public get lkIsInit(): boolean {
