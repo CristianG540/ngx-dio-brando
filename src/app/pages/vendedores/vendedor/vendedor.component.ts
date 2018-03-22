@@ -5,11 +5,14 @@ import { LocalDataSource } from 'ng2-smart-table';
 import 'rxjs/add/operator/switchMap';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { MapaOrdenesComponent } from './mapa-ordenes/mapa-ordenes.component';
 
 // Services
 import { VendedorService } from '../../../@core/data/vendedor/vendedor.service';
 // Models
 import { BasicInfoOrden } from '../../../@core/data/vendedor/models/basicInfoOrden';
+import { Orden } from '../../../@core/data/orden/models/orden';
 
 @Component({
   selector: 'ngx-vendedor',
@@ -20,6 +23,7 @@ export class VendedorComponent implements OnInit, OnDestroy {
 
   private _vendedor: string = '';
   private _paramsSub: Subscription;
+  private _ordenesGps: Orden[] = [];
 
   /**
    * objeto de configuracion para ng2-smart-table
@@ -62,6 +66,10 @@ export class VendedorComponent implements OnInit, OnDestroy {
       cantItems: {
         title: 'Items',
       },
+      ubicacion: {
+        title: 'Ubicacion',
+        type: 'html',
+      },
       estado: {
         title: 'Estado',
         type: 'html',
@@ -75,14 +83,16 @@ export class VendedorComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private location: Location,
+    private modalService: NgbModal,
   ) {}
 
   ngOnInit() {
     this._paramsSub = this.activatedRoute.params.subscribe(params => {
       this.vendedoresService.bdName = this._vendedor = params['vendedor'];
       this.vendedoresService.formatOrdenesVendedor().then( res => {
-        console.log('ordenes vendedor', res);
-        this.source.load(res);
+        console.log('ordenes vendedor', res.ordenesInfo);
+        this._ordenesGps = res.ordenesGps;
+        this.source.load(res.ordenesInfo);
       }).catch(err => {
         console.error('Me cago en la puta errror', err);
       });
@@ -100,6 +110,11 @@ export class VendedorComponent implements OnInit, OnDestroy {
 
   private back(): void {
     this.location.back();
+  }
+
+  private verUbicacion(): void {
+    const activeModal = this.modalService.open(MapaOrdenesComponent, { size: 'lg', container: 'nb-layout' });
+    activeModal.componentInstance.ordenes = this._ordenesGps;
   }
 
 }

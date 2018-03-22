@@ -104,15 +104,24 @@ export class VendedorService {
     };
   }
 
-  public async formatOrdenesVendedor(): Promise<BasicInfoOrden[]> {
+  public async formatOrdenesVendedor(): Promise<any> {
     const ordenesUsuario = await this.getOrdenesVendedor(); // traigo todas las ordenes del vendedor
-    return _.map(ordenesUsuario.docs.rows, (row: any) => {
+    const ordenesUbicacion: Orden[] = [];
+
+    const ordenes = _.map(ordenesUsuario.docs.rows, (row: any) => {
+      if ( _.has(row.doc, 'accuracy') ) {
+        ordenesUbicacion.push(row.doc);
+      }
+
       let statusOrder: string = '<span class="badge badge-success">Procesado</span>'; // row.doc.estado
       const hasDocEntry: boolean = !_.has(row.doc, 'docEntry') || row.doc.docEntry === '';
       const hasError: boolean = _.has(row.doc, 'error') && row.doc.error;
       if ( hasDocEntry ) { statusOrder = '<span class="badge badge-warning">Pendiente</span>'; }
       if ( hasError ) { statusOrder = '<span class="badge badge-danger">Error</span>'; }
       if ( String(row.doc.estado) === 'seen' ) { statusOrder = '<span class="badge badge-info">Revisado</span>'; }
+      // tslint:disable-next-line:max-line-length
+      const ubicacion: string =  _.has(row.doc, 'accuracy') ? '<span class="badge badge-success">Si</span>' : '<span class="badge badge-danger">No</span>';
+
       return {
         id         : row.doc._id,
         cliente    : row.doc.nitCliente,
@@ -120,8 +129,14 @@ export class VendedorService {
         total      : row.doc.total,
         cantItems  : row.doc.items.length,
         estado     : statusOrder,
+        ubicacion  : ubicacion,
       };
     });
+
+    return {
+      ordenesInfo: ordenes,
+      ordenesGps: ordenesUbicacion,
+    };
   }
 
   /**

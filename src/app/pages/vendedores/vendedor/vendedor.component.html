@@ -12,5 +12,10 @@
   <nb-card-body>
     <ng2-smart-table [settings]="settings" [source]="source" (userRowSelect)="onUserRowSelect($event)">
     </ng2-smart-table>
+    <div class="row text-center">
+      <div class="col">
+        <button type="button" class="btn btn-hero-primary btn-demo" (click)="verUbicacion()">Ubicacion</button>
+      </div>
+    </div>
   </nb-card-body>
 </nb-card>
