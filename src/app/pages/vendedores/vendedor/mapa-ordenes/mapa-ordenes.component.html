@@ -8,8 +8,16 @@
   <agm-map [latitude]="_lat" [longitude]="_lng" [zoom]="_zoom">
     <agm-marker
       *ngFor="let orden of ordenes"
+      (markerClick)="clickedMarker(orden)"
       [latitude]="orden?.location?.lat"
       [longitude]="orden?.location?.lon">
+      <agm-info-window>
+        <ul class="perro">
+          <li><b>Id: </b> {{ orden?._id }}</li>
+          <li><b>Cliente: </b> {{ orden?.nitCliente }}</li>
+          <li><b>Fecha: </b> {{ orden?._id | date:'dd-MM-y hh:mm a'}}</li>
+        </ul>
+      </agm-info-window>
     </agm-marker>
   </agm-map>
 </div>

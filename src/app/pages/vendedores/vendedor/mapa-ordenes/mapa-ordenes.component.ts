@@ -25,6 +25,10 @@ export class MapaOrdenesComponent implements OnInit {
     console.log('ordenes mapa', this.ordenes);
   }
 
+  clickedMarker(e): void {
+    console.log('Marcador clicckeado:', e);
+  }
+
   closeModal() {
     this.activeModal.close();
   }
